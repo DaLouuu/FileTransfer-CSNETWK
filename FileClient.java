@@ -14,6 +14,8 @@ public class FileClient
 		
 		try
 		{
+			System.out.println("Client: Connecting to server at localhost/127.0.0.1:4000");
+
 			Socket clientEndpoint = new Socket(sServerAddress, nPort);
 			
 			System.out.println("Client: Connected to server at" + clientEndpoint.getRemoteSocketAddress());
@@ -24,26 +26,18 @@ public class FileClient
 			DataInputStream disReader = new DataInputStream(clientEndpoint.getInputStream());
 			System.out.println(disReader.readUTF());
 
-			boolean isFileComing = disReader.readBoolean();
-
-			if (isFileComing) {
-			
-			String receivedFileName = disReader.readUTF();
-
 			int fileSize = disReader.readInt();
             byte[] fileData = new byte[fileSize];
-            disReader.read(fileData);
+            disReader.readFully(fileData);
 
-            FileOutputStream fos = new FileOutputStream("Received.txt");
+			String newFileName = "Received.txt";
+            FileOutputStream fos = new FileOutputStream(newFileName);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
             bos.write(fileData);
 
 			bos.close();
 			clientEndpoint.close();
-			System.out.println("Client: Downloaded file \"" + receivedFileName + "\"");
-            } else {
-                System.out.println("Client: No file sent by server.");
-            }
+			System.out.println("Client: Downloaded file \"" + newFileName + "\"");
 		}
 		catch (Exception e)
 		{
