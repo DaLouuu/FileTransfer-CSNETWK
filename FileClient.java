@@ -26,17 +26,27 @@ public class FileClient
 			DataInputStream disReader = new DataInputStream(clientEndpoint.getInputStream());
 			System.out.println(disReader.readUTF());
 
+			// Receive file size
 			int fileSize = disReader.readInt();
+
+			// Prepare a byte array to store incoming file data
             byte[] fileData = new byte[fileSize];
+
+			// Read the entire file into the byte array
             disReader.readFully(fileData);
 
+			// Define name for the new file to save received data
 			String newFileName = "Received.txt";
+
+			// Write the received file data to a local file
             FileOutputStream fos = new FileOutputStream(newFileName);
             BufferedOutputStream bos = new BufferedOutputStream(fos);
             bos.write(fileData);
 
+			// Close output stream and socket
 			bos.close();
 			clientEndpoint.close();
+			
 			System.out.println("Client: Downloaded file \"" + newFileName + "\"");
 		}
 		catch (Exception e)

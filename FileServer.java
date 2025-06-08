@@ -29,28 +29,33 @@ public class FileServer
 
 			File textFile = new File("Download.txt");
 
-
+			// Check if the file exists before attempting to send it
             if(textFile.exists()){
-                byte[] fileData = new byte[(int) textFile.length()];
 
+				// Read file contents into a byte array
+                byte[] fileData = new byte[(int) textFile.length()];
                 FileInputStream fis = new FileInputStream(textFile);
                 BufferedInputStream bis = new BufferedInputStream(fis);
                 bis.read(fileData, 0, fileData.length);
 
 				System.out.println("Server: Sending file \"" + textFile.getName() + "\" (" + fileData.length + " bytes)");
 
+				// Send the size of the file
                 dosWriter.writeInt(fileData.length);
                 dosWriter.flush();
 
-
+				// Send the actual file data
                 dosWriter.write(fileData, 0, fileData.length);
                 dosWriter.flush();
 
+				// Close the file input stream
                 bis.close();
             } else {
+				// Inform if the file does not exist
                 System.out.println("Server: File Download.txt does not exist. No file sent.");
             }
 
+			// Close the socket connections
 			serverSocket.close();
 			serverEndpoint.close();
 		}
