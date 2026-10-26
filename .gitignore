@@ -1,4 +1,6 @@
-# Byte-code
+# Build Output
+bin/
+target/
 *.class
 
 # Package Files

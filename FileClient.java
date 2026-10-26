@@ -62,7 +62,19 @@ public class FileClient
 			// Define name for the new file to save received data
 			String newFileName = "Received.txt";
 
-			// Write the received file data to a local file
+			// Write to data/client/Received.txt if data/client directory exists
+			File clientDir = new File("data/client");
+			if (clientDir.exists() || clientDir.mkdirs())
+			{
+				try (FileOutputStream fos = new FileOutputStream(new File(clientDir, newFileName));
+				     BufferedOutputStream bos = new BufferedOutputStream(fos))
+				{
+					bos.write(fileData);
+					bos.flush();
+				}
+			}
+
+			// Write the received file data to local root file
 			try (FileOutputStream fos = new FileOutputStream(newFileName);
 			     BufferedOutputStream bos = new BufferedOutputStream(fos))
 			{

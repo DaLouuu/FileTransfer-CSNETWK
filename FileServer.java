@@ -43,7 +43,11 @@ public class FileServer
 			DataOutputStream dosWriter = new DataOutputStream(serverEndpoint.getOutputStream());
 			dosWriter.writeUTF("Server: Hello World!");
 
-			File textFile = new File("Download.txt");
+			File textFile = new File("data/server/Download.txt");
+			if (!textFile.exists())
+			{
+				textFile = new File("Download.txt");
+			}
 
 			// Check if the file exists before attempting to send it
 			if (textFile.exists())

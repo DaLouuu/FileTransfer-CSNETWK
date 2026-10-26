@@ -67,48 +67,37 @@ sequenceDiagram
 
 ## 📂 Project Folder Hierarchy
 
-### Current Flat Hierarchy (Lab Submission Compatible)
-The project is currently structured for single-directory CLI execution as required by academic grading scripts:
-```text
-Socket-Programming-1/
-├── .gitignore                                 # Git ignore patterns for build/class artifacts
-├── CSNETWK_Lab03_GuillarteSo.png              # Execution proof screenshot
-├── Download.txt                               # Source file to be transferred by server
-├── FileClient.java                            # TCP client implementation
-├── FileServer.java                            # TCP server implementation
-├── Lab Activity 3 - Socket Programming (Task 1).pdf # Assignment specification
-├── README.md                                  # Project documentation
-└── Received.txt                               # Destination file created by client
-```
-
-### Recommended Production / Modular Hierarchy
-For scalable development, testing, and multi-platform packaging, the following folder hierarchy is recommended:
+### Project Folder Hierarchy
+The project implements a clean, modular structure under `src/main/java/` with dedicated `data/` and `docs/` directories, while retaining backward compatibility for direct root-level execution:
 
 ```text
 FileTransfer-CSNETWK/
 ├── .gitignore
 ├── README.md
-├── pom.xml (or build.gradle)                 # Build management
-├── docs/
-│   ├── CSNETWK_Lab03_GuillarteSo.png          # Execution screenshots & logs
-│   └── specifications.pdf                     # Lab/Course requirements
-├── data/
+├── pom.xml                                   # Maven project descriptor
+├── docs/                                     # Documentation, specs, and screenshots
+│   ├── CSNETWK_Lab03_GuillarteSo.png         # Execution proof screenshot
+│   └── Lab Activity 3 - Socket Programming (Task 1).pdf # Lab specification
+├── data/                                     # Dedicated data directories
 │   ├── server/
-│   │   └── Download.txt                       # Server storage directory
+│   │   └── Download.txt                      # Source file served by server
 │   └── client/
-│       └── Received.txt                       # Client download output directory
-├── src/
+│       └── Received.txt                      # Output file downloaded by client
+├── src/                                      # Modular source code
 │   └── main/
 │       └── java/
 │           └── edu/dlsu/csnetwk/
-│               ├── common/                    # Shared network constants & protocols
-│               │   └── ProtocolConfig.java
-│               ├── server/                    # Server logic & connection workers
-│               │   ├── FileServer.java
-│               │   └── ClientHandler.java
-│               └── client/                    # Client logic & file downloaders
-│                   └── FileClient.java
-└── bin/                                       # Compiled bytecode outputs
+│               ├── common/
+│               │   └── ProtocolConfig.java   # Centralized protocol configuration
+│               ├── server/
+│               │   ├── FileServer.java       # Server endpoint & listener
+│               │   └── ClientHandler.java    # Connection & transmission handler
+│               └── client/
+│                   └── FileClient.java       # Client receiver implementation
+├── FileServer.java                           # Root compatibility entrypoint
+├── FileClient.java                           # Root compatibility entrypoint
+├── Download.txt                              # Root fallback source file
+└── Received.txt                              # Root fallback output file
 ```
 
 ---
@@ -118,30 +107,43 @@ FileTransfer-CSNETWK/
 ### Prerequisites
 - **Java Development Kit (JDK) 8 or higher** (Tested on OpenJDK 23).
 
-### Step 1: Compile the Source Files
-Open a terminal in the project directory:
+---
+
+### Option A: Running the Modular Package (Recommended)
+
+#### 1. Compile the Source Code
+Compile all modular classes into `bin/`:
+```powershell
+javac -d bin (Get-ChildItem -Path src -Filter *.java -Recurse | ForEach-Object { $_.FullName })
+```
+
+#### 2. Start the Modular Server
+Run the modular server with the listening port (e.g., `4000`):
+```powershell
+java -cp bin edu.dlsu.csnetwk.server.FileServer 4000
+```
+
+#### 3. Run the Modular Client
+In a separate terminal, connect to the server:
+```powershell
+java -cp bin edu.dlsu.csnetwk.client.FileClient 127.0.0.1 4000
+```
+
+---
+
+### Option B: Running via Root Entrypoints (Lab Submission Mode)
+
+#### 1. Compile the Root Files
 ```powershell
 javac FileServer.java FileClient.java
 ```
 
-### Step 2: Ensure Source File Exists
-Ensure `Download.txt` exists in the working directory:
-```powershell
-echo "Hello World!" > Download.txt
-```
-
-### Step 3: Start the File Server
-Run the server with the desired port (e.g., `4000`):
+#### 2. Start the Server
 ```powershell
 java FileServer 4000
 ```
-*Expected Server Output:*
-```text
-Server: Listening on port 4000...
-```
 
-### Step 4: Run the File Client
-In a separate terminal window, run the client with the server IP and port:
+#### 3. Run the Client
 ```powershell
 java FileClient 127.0.0.1 4000
 ```
