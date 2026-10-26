@@ -9,10 +9,26 @@ public class FileServer
 {
 	public static void main(String[] args)
 	{
-		int nPort = Integer.parseInt(args[0]);
-		System.out.println("Server: Listening on port " + args[0] + "...");
-		ServerSocket serverSocket;
-		Socket serverEndpoint;
+		if (args.length < 1)
+		{
+			System.out.println("Usage: java FileServer <port>");
+			return;
+		}
+
+		int nPort;
+		try
+		{
+			nPort = Integer.parseInt(args[0]);
+		}
+		catch (NumberFormatException e)
+		{
+			System.err.println("Error: Port must be a valid integer.");
+			return;
+		}
+
+		System.out.println("Server: Listening on port " + nPort + "...");
+		ServerSocket serverSocket = null;
+		Socket serverEndpoint = null;
 
 		try 
 		{
@@ -30,34 +46,42 @@ public class FileServer
 			File textFile = new File("Download.txt");
 
 			// Check if the file exists before attempting to send it
-            if(textFile.exists()){
-
+			if (textFile.exists())
+			{
 				// Read file contents into a byte array
-                byte[] fileData = new byte[(int) textFile.length()];
-                FileInputStream fis = new FileInputStream(textFile);
-                BufferedInputStream bis = new BufferedInputStream(fis);
-                bis.read(fileData, 0, fileData.length);
+				byte[] fileData = new byte[(int) textFile.length()];
+				try (FileInputStream fis = new FileInputStream(textFile);
+				     BufferedInputStream bis = new BufferedInputStream(fis))
+				{
+					int bytesRead = 0;
+					while (bytesRead < fileData.length)
+					{
+						int read = bis.read(fileData, bytesRead, fileData.length - bytesRead);
+						if (read == -1)
+						{
+							break;
+						}
+						bytesRead += read;
+					}
+				}
 
 				System.out.println("Server: Sending file \"" + textFile.getName() + "\" (" + fileData.length + " bytes)");
 
 				// Send the size of the file
-                dosWriter.writeInt(fileData.length);
-                dosWriter.flush();
+				dosWriter.writeInt(fileData.length);
+				dosWriter.flush();
 
 				// Send the actual file data
-                dosWriter.write(fileData, 0, fileData.length);
-                dosWriter.flush();
-
-				// Close the file input stream
-                bis.close();
-            } else {
+				dosWriter.write(fileData, 0, fileData.length);
+				dosWriter.flush();
+			}
+			else
+			{
 				// Inform if the file does not exist
-                System.out.println("Server: File Download.txt does not exist. No file sent.");
-            }
-
-			// Close the socket connections
-			serverSocket.close();
-			serverEndpoint.close();
+				System.out.println("Server: File Download.txt does not exist. No file sent.");
+				dosWriter.writeInt(-1);
+				dosWriter.flush();
+			}
 		}
 		catch (Exception e)
 		{
@@ -65,6 +89,28 @@ public class FileServer
 		}
 		finally
 		{
+			if (serverEndpoint != null && !serverEndpoint.isClosed())
+			{
+				try
+				{
+					serverEndpoint.close();
+				}
+				catch (IOException e)
+				{
+					// Ignore exception on close
+				}
+			}
+			if (serverSocket != null && !serverSocket.isClosed())
+			{
+				try
+				{
+					serverSocket.close();
+				}
+				catch (IOException e)
+				{
+					// Ignore exception on close
+				}
+			}
 			System.out.println("Server: Connection is terminated.");
 		}
 	}
